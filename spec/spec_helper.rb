@@ -12,6 +12,10 @@ def smart_require(lib_name, gem_name, gem_version = '>= 0.0.0')
   end
 end
 
+# explicitly load this gem first to hotfix error:
+# /opt/local/lib/ruby/site_ruby/1.8/rubygems/custom_require.rb:36:in `gem_original_require': no such file to load -- action_controller (MissingSourceFile)
+gem 'actionpack', '>= 2.3.4'
+
 smart_require 'spec', 'spec', '>= 1.2.6'
 smart_require false, 'rspec-rails', '>= 1.2.6'
 smart_require 'hpricot', 'hpricot', '>= 0.6.1'
