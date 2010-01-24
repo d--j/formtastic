@@ -475,6 +475,13 @@ module Formtastic #:nodoc:
       def options_for_label(options) #:nodoc:
         options.slice(:label, :required).merge!(options.fetch(:label_html, {}))
       end
+      
+      # Prepare options to be sent to the input method (text_field and such)
+      #
+      def options_for_input(method_name, options) #:nodoc:
+        html_options = options.fetch(:input_html, {})
+        html_options
+      end
 
       # Deals with :for option when it's supplied to inputs methods. Additional
       # options to be passed down to :for should be supplied using :for_options
@@ -550,7 +557,7 @@ module Formtastic #:nodoc:
       end
 
       def basic_input_helper(form_helper_method, type, method, options) #:nodoc:
-        html_options = options.delete(:input_html) || {}
+        html_options = options_for_input(method, options)
         html_options = default_string_options(method, type).merge(html_options) if [:numeric, :string, :password, :text].include?(type)
 
         self.label(method, options_for_label(options)) <<
@@ -699,7 +706,7 @@ module Formtastic #:nodoc:
       #   f.input :author, :group_by => :continents, :group_label_method => :something_different
       #
       def select_input(method, options)
-        html_options = options.delete(:input_html) || {}
+        html_options = options_for_input(method, options)
         options = set_include_blank(options)
         html_options[:multiple] = html_options[:multiple] || options.delete(:multiple)
         html_options.delete(:multiple) if html_options[:multiple].nil?
@@ -754,7 +761,7 @@ module Formtastic #:nodoc:
       #   f.input :my_favorite_time_zone, :as => :time_zone, :selected => 'Singapore'
       #
       def time_zone_input(method, options)
-        html_options = options.delete(:input_html) || {}
+        html_options = options_for_input(method, options)
         selected_value = options.delete(:selected)
 
         self.label(method, options_for_label(options)) <<
@@ -828,7 +835,7 @@ module Formtastic #:nodoc:
       #
       def radio_input(method, options)
         collection   = find_collection_for_column(method, options)
-        html_options = strip_formtastic_options(options).merge(options.delete(:input_html) || {})
+        html_options = strip_formtastic_options(options).merge(options_for_input(method, options))
 
         input_name = generate_association_input_name(method)
         value_as_class = options.delete(:value_as_class)
@@ -977,7 +984,7 @@ module Formtastic #:nodoc:
         datetime = options.key?(:default) ? options[:default] : Time.now # can't do an || because nil is an important value
         datetime = @object.send(method) if @object && @object.send(method) # object trumps :default
 
-        html_options = options.delete(:input_html) || {}
+        html_options = options_for_input(method, options)
         input_ids    = []
 
         (inputs + time_inputs).each do |input|
@@ -1078,7 +1085,7 @@ module Formtastic #:nodoc:
       #
       def check_boxes_input(method, options)
         collection = find_collection_for_column(method, options)
-        html_options = options.delete(:input_html) || {}
+        html_options = options_for_input(method, options)
 
         input_name      = generate_association_input_name(method)
         value_as_class  = options.delete(:value_as_class)
@@ -1128,7 +1135,7 @@ module Formtastic #:nodoc:
       def country_input(method, options)
         raise "To use the :country input, please install a country_select plugin, like this one: http://github.com/rails/iso-3166-country-select" unless self.respond_to?(:country_select)
 
-        html_options = options.delete(:input_html) || {}
+        html_options = options_for_input(method, options)
         priority_countries = options.delete(:priority_countries) || @@priority_countries
 
         self.label(method, options_for_label(options)) <<
@@ -1148,7 +1155,7 @@ module Formtastic #:nodoc:
      def currency_input(method, options)
        raise "To use the :currency input, please install the currency_select plugin http://github.com/gavinlaking/currency_select" unless self.respond_to?(:currency_select)
 
-       html_options = options.delete(:input_html) || {}
+       html_options = options_for_input(method, options)
        priority_currencies = options.delete(:priority_currencies) || @@priority_currencies
 
        self.label(method, options_for_label(options)) <<
@@ -1166,7 +1173,7 @@ module Formtastic #:nodoc:
       #   f.input :allow_comments, :as => :boolean, :selected => true   # override any default value: selected/checked
       #
       def boolean_input(method, options)
-        html_options = options.delete(:input_html) || {}
+        html_options = options_for_input(method, options)
         checked = options.key?(:checked) ? options[:checked] : options[:selected]
         html_options[:checked] = checked == true if [:selected, :checked].any? { |k| options.key?(k) }
 
