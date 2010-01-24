@@ -52,3 +52,8 @@
 # You can add custom inputs or override parts of Formtastic by subclassing SemanticFormBuilder and
 # specifying that class here.  Defaults to SemanticFormBuilder.
 # Formtastic::SemanticFormHelper.builder = MyCustomBuilder
+
+# Specifies if input fields should be marked up with WAI ARIA attributes where applicable.
+# E.g. that a required input should have the attribute aria-required
+# Default value: false. 
+# Formtastic::SemanticFormBuilder.wai_aria_enabled = false

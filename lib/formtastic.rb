@@ -20,10 +20,12 @@ module Formtastic #:nodoc:
     @@priority_currencies = ["US Dollar", "Euro"]
     @@i18n_lookups_by_default = false
     @@default_commit_button_accesskey = nil
+    @@wai_aria_enabled = false
 
     cattr_accessor :default_text_field_size, :default_text_area_height, :all_fields_required_by_default, :include_blank_for_select_by_default,
                    :required_string, :optional_string, :inline_errors, :label_str_method, :collection_label_methods,
-                   :inline_order, :file_methods, :priority_countries, :priority_currencies, :i18n_lookups_by_default, :default_commit_button_accesskey
+                   :inline_order, :file_methods, :priority_countries, :priority_currencies, :i18n_lookups_by_default,
+                  :default_commit_button_accesskey, :wai_aria_enabled
 
     RESERVED_COLUMNS = [:created_at, :updated_at, :created_on, :updated_on, :lock_version, :version]
 
@@ -480,6 +482,11 @@ module Formtastic #:nodoc:
       #
       def options_for_input(method_name, options) #:nodoc:
         html_options = options.fetch(:input_html, {})
+        if self.class.wai_aria_enabled 
+          html_options[:'aria-describedby'] = generate_html_id(method_name, 'inline_hint') unless options[:hint].blank?
+          html_options[:'aria-required'] = options[:required].to_s
+          html_options[:'aria-invalid'] = 'true' if @object.errors[method_name.to_sym].present?
+        end
         html_options
       end
 
@@ -1197,7 +1204,7 @@ module Formtastic #:nodoc:
       def inline_hints_for(method, options) #:nodoc:
         options[:hint] = localized_string(method, options[:hint], :hint)
         return if options[:hint].blank?
-        template.content_tag(:p, options[:hint], :class => 'inline-hints')
+        template.content_tag(:p, options[:hint], :class => 'inline-hints', :id => generate_html_id(method, 'inline_hint'))
       end
 
       # Creates an error sentence by calling to_sentence on the errors array.
